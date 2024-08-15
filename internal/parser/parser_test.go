@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"github.com/mat-sik/encoder-decoder/internal/assertMsg"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -64,7 +63,7 @@ func TestIsProperArg_NoHyphen(t *testing.T) {
 	// when
 	result := isValidArg(input)
 	// then
-	assert.Equal(t, expected, result, assertMsg.GetAssertMsg(input, expected))
+	assert.Equal(t, expected, result)
 }
 
 func TestIsProperArg_SingleHyphen(t *testing.T) {
@@ -74,7 +73,7 @@ func TestIsProperArg_SingleHyphen(t *testing.T) {
 	// when
 	result := isValidArg(input)
 	// then
-	assert.Equal(t, expected, result, assertMsg.GetAssertMsg(input, expected))
+	assert.Equal(t, expected, result)
 }
 
 func TestIsProperArg_DoubleHyphen(t *testing.T) {
@@ -84,7 +83,7 @@ func TestIsProperArg_DoubleHyphen(t *testing.T) {
 	// when
 	result := isValidArg(input)
 	// then
-	assert.Equal(t, expected, result, assertMsg.GetAssertMsg(input, expected))
+	assert.Equal(t, expected, result)
 }
 
 func TestIsPairArg_GoodInput(t *testing.T) {
@@ -96,9 +95,9 @@ func TestIsPairArg_GoodInput(t *testing.T) {
 	// when
 	resultKey, resultValue, resultIsPair := parsePairArg(input)
 	// then
-	assert.Equal(t, expectedKey, resultKey, assertMsg.GetAssertMsg(input, expectedKey))
-	assert.Equal(t, expectedValue, resultValue, assertMsg.GetAssertMsg(input, expectedValue))
-	assert.Equal(t, expectedIsPair, resultIsPair, assertMsg.GetAssertMsg(input, expectedIsPair))
+	assert.Equal(t, expectedKey, resultKey)
+	assert.Equal(t, expectedValue, resultValue)
+	assert.Equal(t, expectedIsPair, resultIsPair)
 }
 
 func TestIsPairArg_NoPairArg(t *testing.T) {
@@ -110,7 +109,7 @@ func TestIsPairArg_NoPairArg(t *testing.T) {
 	// when
 	resultKey, resultValue, resultIsPair := parsePairArg(input)
 	// then
-	assert.Equal(t, expectedKey, resultKey, assertMsg.GetAssertMsg(input, expectedKey))
-	assert.Equal(t, expectedValue, resultValue, assertMsg.GetAssertMsg(input, expectedValue))
-	assert.Equal(t, expectedIsPair, resultIsPair, assertMsg.GetAssertMsg(input, expectedIsPair))
+	assert.Equal(t, expectedKey, resultKey)
+	assert.Equal(t, expectedValue, resultValue)
+	assert.Equal(t, expectedIsPair, resultIsPair)
 }
