@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func Test_parse(t *testing.T) {
 	// given
 	input := []string{
 		"-arg",
@@ -27,7 +27,7 @@ func TestParse(t *testing.T) {
 	assert.Equal(t, expectedMap, resultMap)
 }
 
-func TestParse_NoArgs(t *testing.T) {
+func Test_parse_NoArgs(t *testing.T) {
 	// given
 	var input []string
 	var expectedErr error = nil
@@ -39,7 +39,7 @@ func TestParse_NoArgs(t *testing.T) {
 	assert.Equal(t, expectedMap, resultMap)
 }
 
-func TestParse_IncorrectArg(t *testing.T) {
+func Test_parse_IncorrectArg(t *testing.T) {
 	// given
 	input := []string{
 		"-arg",
@@ -56,7 +56,7 @@ func TestParse_IncorrectArg(t *testing.T) {
 	assert.Equal(t, expectedMap, resultMap)
 }
 
-func TestIsProperArg_NoHyphen(t *testing.T) {
+func Test_isValidArg_NoHyphen(t *testing.T) {
 	// given
 	input := "arg"
 	expected := false
@@ -66,7 +66,7 @@ func TestIsProperArg_NoHyphen(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestIsProperArg_SingleHyphen(t *testing.T) {
+func Test_isValidArg_SingleHyphen(t *testing.T) {
 	// given
 	input := "-arg"
 	expected := true
@@ -76,7 +76,7 @@ func TestIsProperArg_SingleHyphen(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestIsProperArg_DoubleHyphen(t *testing.T) {
+func Test_isValidArg_DoubleHyphen(t *testing.T) {
 	// given
 	input := "--hello"
 	expected := true
@@ -86,7 +86,7 @@ func TestIsProperArg_DoubleHyphen(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestIsPairArg_GoodInput(t *testing.T) {
+func Test_parrsePairArg_GoodInput(t *testing.T) {
 	// given
 	input := "-arg=one"
 	expectedKey := "-arg"
@@ -100,7 +100,7 @@ func TestIsPairArg_GoodInput(t *testing.T) {
 	assert.Equal(t, expectedIsPair, resultIsPair)
 }
 
-func TestIsPairArg_NoPairArg(t *testing.T) {
+func Test_parrsePairArg_NoPairArg(t *testing.T) {
 	// given
 	input := "-argone"
 	expectedKey := ""
