@@ -15,6 +15,6 @@ func Test_getModeValue(t *testing.T) {
     // when
     resultMode, resultErr := getModeValue(argMap)
     // then
-    assert.Equal(t, resultMode, expectedMode)
-    assert.Equal(t, resultErr, expectedErr)
+    assert.Equal(t, expectedMode, resultMode)
+    assert.Equal(t, expectedErr, resultErr)
 }
