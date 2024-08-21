@@ -53,7 +53,7 @@ type CaesarCipherInput struct {
 }
 
 func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) {
-	cipherrInput, err := newCipherInput(argMap)
+	cipherInput, err := newCipherInput(argMap)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) 
 	if err != nil {
 		return nil, err
 	}
-	return &CaesarCipherInput{cipherrInput, key}, nil
+	return &CaesarCipherInput{cipherInput, key}, nil
 }
 
 func (input *CaesarCipherInput) encode() {}
