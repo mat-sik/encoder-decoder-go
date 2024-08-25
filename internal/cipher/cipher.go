@@ -1,19 +1,21 @@
 package cipher
 
+import "github.com/mat-sik/encoder-decoder/internal/parser"
+
 type Cipher interface {
 	encode()
 	decode()
 }
 
 func newCipher(argMap map[string]string) (Cipher, error) {
-	alg, err := getAlgValue(argMap)
+	alg, err := parser.GetAlgValue(argMap)
 	if err != nil {
 		return nil, err
 	}
 	switch alg {
-	case Caesar:
+	case parser.Caesar:
 		return newCaesarCipherInput(argMap)
-	case Mirror:
+	case parser.Mirror:
 		return newMirrorCipherInput(argMap)
 	default:
 		panic("technically this is not possible")
@@ -21,26 +23,26 @@ func newCipher(argMap map[string]string) (Cipher, error) {
 }
 
 type CipherInput struct {
-	Mode    Mode
-	Alg     Alg
+	Mode    parser.Mode
+	Alg     parser.Alg
 	InPath  string
 	OutPath string
 }
 
 func newCipherInput(argMap map[string]string) (*CipherInput, error) {
-	mode, err := getModeValue(argMap)
+	mode, err := parser.GetModeValue(argMap)
 	if err != nil {
 		return nil, err
 	}
-	alg, err := getAlgValue(argMap)
+	alg, err := parser.GetAlgValue(argMap)
 	if err != nil {
 		return nil, err
 	}
-	in, err := getInValue(argMap)
+	in, err := parser.GetInValue(argMap)
 	if err != nil {
 		return nil, err
 	}
-	out, err := getOutValue(argMap)
+	out, err := parser.GetOutValue(argMap)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +59,7 @@ func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) 
 	if err != nil {
 		return nil, err
 	}
-	key, err := getIntKeyValue(argMap)
+	key, err := parser.GetIntKeyValue(argMap)
 	if err != nil {
 		return nil, err
 	}

@@ -1,4 +1,4 @@
-package cipher
+package algorithms
 
 import (
 	"github.com/stretchr/testify/assert"
