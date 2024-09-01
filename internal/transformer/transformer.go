@@ -28,7 +28,7 @@ func transformRuneFiles(inputFilePath string, outputFilePath string, transformFu
 	outputBuffer := new(bytes.Buffer)
 	outputBuffer.Grow(WriteBufferSize)
 
-	if err := handleRuneFilesTransformation(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
+	if err = handleRuneFilesTransformation(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
 		return err
 	}
 	return nil
@@ -59,7 +59,7 @@ func handleRuneFilesTransformation(
 			return err
 		}
 
-		err := transformRuneBuffers(inputBuffer, outputBuffer, transformFunc)
+		err = transformRuneBuffers(inputBuffer, outputBuffer, transformFunc)
 		switch err.(type) {
 		case nil, *ErrErroneousRune: // something was transformed, so write it
 			consecutiveErroneousInitialRune = false
@@ -111,7 +111,7 @@ func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer,
 			return &ErrErroneousRune{}
 		} else { // Transform rune and write it to output buffer.
 			transformedRune := transformFunc(inputRune)
-			if _, err := outputBuffer.WriteRune(transformedRune); err != nil {
+			if _, err = outputBuffer.WriteRune(transformedRune); err != nil {
 				return err
 			}
 		}
