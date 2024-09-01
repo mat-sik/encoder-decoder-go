@@ -19,13 +19,13 @@ func filesApplyFuncAndTransfer(
 	if err != nil {
 		return err
 	}
-	defer closeFile(inputFile)
+	defer safeCloseFile(inputFile)
 
 	outputFile, err := os.Open(outputFilePath)
 	if err != nil {
 		return err
 	}
-	defer closeFile(outputFile)
+	defer safeCloseFile(outputFile)
 
 	inputBuffer := new(bytes.Buffer)
 	inputBuffer.Grow(ReadBufferSize)
@@ -39,7 +39,7 @@ func filesApplyFuncAndTransfer(
 	return nil
 }
 
-func closeFile(file *os.File) {
+func safeCloseFile(file *os.File) {
 	if err := file.Close(); err != nil {
 		panic(err)
 	}
