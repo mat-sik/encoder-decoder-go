@@ -8,7 +8,7 @@ func caesarSlice(input []rune, offset int32, caesarFunc func(rune, int32) rune) 
 	}
 }
 
-func offsetRuneForward(r rune, offset int32) rune {
+func OffsetRuneForward(r rune, offset int32) rune {
 	distance := unicode.MaxRune - r
 	if distance < offset {
 		return offset - distance - 1
@@ -16,7 +16,7 @@ func offsetRuneForward(r rune, offset int32) rune {
 	return r + offset
 }
 
-func offsetRuneBackward(r rune, offset int32) rune {
+func OffsetRuneBackward(r rune, offset int32) rune {
 	distance := r
 	if distance < offset {
 		return unicode.MaxRune - (offset - distance - 1)
