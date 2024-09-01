@@ -10,7 +10,7 @@ import (
 const ReadBufferSize = 4 * 1024
 const WriteBufferSize = 4 * ReadBufferSize
 
-func transformAndTransferRunesBetweenFiles(
+func filesApplyFuncAndTransfer(
 	inputFilePath string,
 	outputFilePath string,
 	transformFunc func(r rune) rune,
@@ -33,7 +33,7 @@ func transformAndTransferRunesBetweenFiles(
 	outputBuffer := new(bytes.Buffer)
 	outputBuffer.Grow(WriteBufferSize)
 
-	if err = transformAndTransferRunesFromReaderToWriter(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
+	if err = applyFuncAndTransfer(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
 		return err
 	}
 	return nil
@@ -45,7 +45,7 @@ func closeFile(file *os.File) {
 	}
 }
 
-func transformAndTransferRunesFromReaderToWriter(
+func applyFuncAndTransfer(
 	reader io.Reader,
 	writer io.Writer,
 	inputBuffer *bytes.Buffer,
@@ -64,7 +64,7 @@ func transformAndTransferRunesFromReaderToWriter(
 			return err
 		}
 
-		err = applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
+		err = runeBuffersApplyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 
 		switch {
 		case err == nil, errors.Is(err, ErrErroneousRune): // something was transformed, so write it
@@ -90,7 +90,7 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 // The input buffer is expected to be ready to be read from.
 // The output buffer is expected to be ready to be written to.
 // At the end, the input buffer is prepared to be written to again.
-func applyFuncAndTransfer(
+func runeBuffersApplyFuncAndTransfer(
 	inputBuffer *bytes.Buffer,
 	outputBuffer *bytes.Buffer,
 	transformFunc func(r rune) rune,
