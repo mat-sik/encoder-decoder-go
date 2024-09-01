@@ -10,7 +10,7 @@ import (
 const ReadBufferSize = 4 * 1024
 const WriteBufferSize = 4 * ReadBufferSize
 
-func transformAndTransferRuneFiles(inputFilePath string, outputFilePath string, transformFunc func(r rune) rune) error {
+func transformAndTransferRunesBetweenFiles(inputFilePath string, outputFilePath string, transformFunc func(r rune) rune) error {
 	inputFile, err := os.Open(inputFilePath)
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func transformAndTransferRuneFiles(inputFilePath string, outputFilePath string, 
 	outputBuffer := new(bytes.Buffer)
 	outputBuffer.Grow(WriteBufferSize)
 
-	if err = transformAndTransferRunes(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
+	if err = transformAndTransferRunesFromReaderToWriter(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
 		return err
 	}
 	return nil
@@ -41,7 +41,7 @@ func closeFile(file *os.File) {
 	}
 }
 
-func transformAndTransferRunes(
+func transformAndTransferRunesFromReaderToWriter(
 	reader io.Reader,
 	writer io.Writer,
 	inputBuffer *bytes.Buffer,
@@ -52,7 +52,7 @@ func transformAndTransferRunes(
 	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
 		if errors.Is(err, io.EOF) {
 			if consecutiveErroneousInitialRune {
-				return ErrUnableToTransformRune
+				return errors.Join(ErrUnableToTransformRune, err)
 			}
 			break
 		}
@@ -60,7 +60,7 @@ func transformAndTransferRunes(
 			return err
 		}
 
-		err = transformRuneBuffers(inputBuffer, outputBuffer, transformFunc)
+		err = readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
 
 		switch {
 		case err == nil, errors.Is(err, ErrErroneousRune): // something was transformed, so write it
@@ -86,7 +86,7 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 // The input buffer is expected to be ready to be read from.
 // The output buffer is expected to be ready to be written to.
 // At the end, the input buffer is prepared to be written to again.
-func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
+func readAndTransformRunesFromInputTransferToOutput(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
 	iterCount := 0
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
 		if errors.Is(err, io.EOF) { // The whole input buffer has been read so end.
