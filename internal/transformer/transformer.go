@@ -52,10 +52,10 @@ func applyFuncAndTransfer(
 	outputBuffer *bytes.Buffer,
 	transformFunc func(rune) rune,
 ) error {
-	consecutiveErroneousInitialRune := false
+	consecutiveInvalidRune := false
 	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
 		if errors.Is(err, io.EOF) {
-			if consecutiveErroneousInitialRune {
+			if consecutiveInvalidRune {
 				return ErrUnableToTransformRune
 			}
 			break
@@ -68,16 +68,16 @@ func applyFuncAndTransfer(
 
 		switch {
 		case err == nil, errors.Is(err, ErrErroneousRune): // something was transformed, so write it
-			consecutiveErroneousInitialRune = false
+			consecutiveInvalidRune = false
 			if _, err = outputBuffer.WriteTo(writer); err != nil {
 				return err
 			}
 			outputBuffer.Reset()
 		case errors.Is(err, ErrErroneousInitialRune):
-			if consecutiveErroneousInitialRune {
+			if consecutiveInvalidRune {
 				return ErrUnableToTransformRune
 			}
-			consecutiveErroneousInitialRune = true
+			consecutiveInvalidRune = true
 		default:
 			return err
 		}
