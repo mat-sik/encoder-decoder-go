@@ -89,18 +89,27 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
 	iterCount := 0
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
-		if err == io.EOF { // The whole input buffer has been read so end.
+		if errors.Is(err, io.EOF) { // The whole input buffer has been read so end.
 			inputBuffer.Reset()
 			break
 		}
 		if err != nil {
 			return err // Unexpected error has occurred.
 		}
-		err = transformAndWriteRuneToBuffer(inputRune, inputRuneSize, inputBuffer, outputBuffer, transformFunc)
-		if errors.Is(err, ErrErroneousRune) && iterCount == 0 {
-			return ErrErroneousInitialRune
+
+		if isInvalidRune(inputRune, inputRuneSize) {
+			if err = inputBuffer.UnreadRune(); err != nil {
+				return err // Unexpected error has occurred.
+			}
+			compactBuffer(inputBuffer)
+			if iterCount == 0 {
+				return ErrErroneousInitialRune
+			}
+			return ErrErroneousRune
 		}
-		if err != nil {
+
+		transformedRune := transformFunc(inputRune)
+		if _, err = outputBuffer.WriteRune(transformedRune); err != nil {
 			return err
 		}
 		iterCount++
@@ -108,30 +117,11 @@ func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer,
 	return nil
 }
 
-var ErrErroneousInitialRune = errors.New("invalid initial rune has been read")
-
-func transformAndWriteRuneToBuffer(
-	inputRune rune,
-	inputRuneSize int,
-	inputBuffer *bytes.Buffer,
-	outputBuffer *bytes.Buffer,
-	transformFunc func(r rune) rune,
-) error {
-	// Invalid or not whole rune has been read, so leave if for next transformRuneBuffers operation and end.
-	if inputRuneSize == 1 && inputRune == '\uFFFD' {
-		if err := inputBuffer.UnreadRune(); err != nil {
-			return err // Unexpected error has occurred.
-		}
-		compactBuffer(inputBuffer)
-		return ErrErroneousRune
-	} else { // Transform rune and write it to output buffer.
-		transformedRune := transformFunc(inputRune)
-		if _, err := outputBuffer.WriteRune(transformedRune); err != nil {
-			return err
-		}
-	}
-	return nil
+func isInvalidRune(r rune, size int) bool {
+	return r == '\uFFFD' && size == 1
 }
+
+var ErrErroneousInitialRune = errors.New("invalid initial rune has been read")
 
 func compactBuffer(inputBuffer *bytes.Buffer) {
 	unreadChunk := inputBuffer.Bytes()
