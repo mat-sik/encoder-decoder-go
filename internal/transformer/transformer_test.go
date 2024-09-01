@@ -26,7 +26,7 @@ func getInputRuneBytes() []byte {
 	return inputRuneBytes
 }
 
-func Test_readAndTransformRunesFromInputTransferToOutput_allRunesCorrectlyRead(t *testing.T) {
+func Test_applyFuncAndTransfer_allRunesCorrectlyRead(t *testing.T) {
 	// given
 	inputBuffer := new(bytes.Buffer)
 	inputBuffer.WriteRune(inputRune)
@@ -41,14 +41,14 @@ func Test_readAndTransformRunesFromInputTransferToOutput_allRunesCorrectlyRead(t
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
 
 	// when
-	err := readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+	err := applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 	// then
 	assert.NoError(t, err)
 	assert.Equal(t, expectedInputBuffer, inputBuffer)
 	assert.Equal(t, expectedOutputBuffer, outputBuffer)
 }
 
-func Test_readAndTransformRunesFromInputTransferToOutput_partialTransformationLastRuneNotComplete(t *testing.T) {
+func Test_applyFuncAndTransfer_partialTransformationLastRuneNotComplete(t *testing.T) {
 	// given
 	inputBuffer := new(bytes.Buffer)
 	inputBuffer.WriteRune(inputRune)
@@ -66,14 +66,14 @@ func Test_readAndTransformRunesFromInputTransferToOutput_partialTransformationLa
 	expectedOutputBuffer := new(bytes.Buffer)
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
 	// when
-	err := readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+	err := applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 	// then
 	assert.Equal(t, expectedErr, err)
 	assert.Equal(t, expectedInputBuffer, inputBuffer)
 	assert.Equal(t, expectedOutputBuffer, outputBuffer)
 }
 
-func Test_readAndTransformRunesFromInputTransferToOutput_partialTransformationLastRuneNotCompleteAddedMissingRunePart(t *testing.T) {
+func Test_applyFuncAndTransfer_partialTransformationLastRuneNotCompleteAddedMissingRunePart(t *testing.T) {
 	// given
 	inputBuffer := new(bytes.Buffer)
 	inputBuffer.WriteRune(inputRune)
@@ -91,15 +91,15 @@ func Test_readAndTransformRunesFromInputTransferToOutput_partialTransformationLa
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
 	// when & then
-	err := readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+	err := applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 	assert.Equal(t, expectedErr, err)
 	inputBuffer.WriteByte(136)
-	err = readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+	err = applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 	assert.Equal(t, expectedInputBuffer, inputBuffer)
 	assert.Equal(t, expectedOutputBuffer, outputBuffer)
 }
 
-func Test_readAndTransformRunesFromInputTransferToOutput_initialRuneIncomplete(t *testing.T) {
+func Test_applyFuncAndTransfer_initialRuneIncomplete(t *testing.T) {
 	// given
 	inputBuffer := new(bytes.Buffer)
 	inputRuneBytesSlice := inputRuneBytes[:2]
@@ -114,7 +114,7 @@ func Test_readAndTransformRunesFromInputTransferToOutput_initialRuneIncomplete(t
 
 	expectedOutputBuffer := new(bytes.Buffer)
 	// when
-	err := readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+	err := applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 	// then
 	assert.Equal(t, expectedErr, err)
 	assert.Equal(t, expectedInputBuffer, inputBuffer)

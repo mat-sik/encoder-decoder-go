@@ -64,7 +64,7 @@ func transformAndTransferRunesFromReaderToWriter(
 			return err
 		}
 
-		err = readAndTransformRunesFromInputTransferToOutput(inputBuffer, outputBuffer, transformFunc)
+		err = applyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
 
 		switch {
 		case err == nil, errors.Is(err, ErrErroneousRune): // something was transformed, so write it
@@ -90,7 +90,7 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 // The input buffer is expected to be ready to be read from.
 // The output buffer is expected to be ready to be written to.
 // At the end, the input buffer is prepared to be written to again.
-func readAndTransformRunesFromInputTransferToOutput(
+func applyFuncAndTransfer(
 	inputBuffer *bytes.Buffer,
 	outputBuffer *bytes.Buffer,
 	transformFunc func(r rune) rune,
