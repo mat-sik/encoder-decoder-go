@@ -10,7 +10,11 @@ import (
 const ReadBufferSize = 4 * 1024
 const WriteBufferSize = 4 * ReadBufferSize
 
-func transformAndTransferRunesBetweenFiles(inputFilePath string, outputFilePath string, transformFunc func(r rune) rune) error {
+func transformAndTransferRunesBetweenFiles(
+	inputFilePath string,
+	outputFilePath string,
+	transformFunc func(r rune) rune,
+) error {
 	inputFile, err := os.Open(inputFilePath)
 	if err != nil {
 		return err
@@ -86,7 +90,11 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 // The input buffer is expected to be ready to be read from.
 // The output buffer is expected to be ready to be written to.
 // At the end, the input buffer is prepared to be written to again.
-func readAndTransformRunesFromInputTransferToOutput(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
+func readAndTransformRunesFromInputTransferToOutput(
+	inputBuffer *bytes.Buffer,
+	outputBuffer *bytes.Buffer,
+	transformFunc func(r rune) rune,
+) error {
 	iterCount := 0
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
 		if errors.Is(err, io.EOF) { // The whole input buffer has been read so end.
