@@ -52,7 +52,7 @@ func transformAndTransferRunesFromReaderToWriter(
 	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
 		if errors.Is(err, io.EOF) {
 			if consecutiveErroneousInitialRune {
-				return errors.Join(ErrUnableToTransformRune, err)
+				return ErrUnableToTransformRune
 			}
 			break
 		}
