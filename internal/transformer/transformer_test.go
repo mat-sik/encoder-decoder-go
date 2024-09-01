@@ -58,7 +58,7 @@ func Test_transformRuneBuffers_partialTransformationLastRuneNotComplete(t *testi
 
 	outputBuffer := new(bytes.Buffer)
 
-	expectedErr := &ErrErroneousRune{}
+	expectedErr := ErrErroneousRune
 
 	expectedInputBuffer := new(bytes.Buffer)
 	expectedInputBuffer.Write(inputRuneBytesSlice)
@@ -83,7 +83,7 @@ func Test_transformRuneBuffers_partialTransformationLastRuneNotCompleteAddedMiss
 
 	outputBuffer := new(bytes.Buffer)
 
-	expectedErr := &ErrErroneousRune{}
+	expectedErr := ErrErroneousRune
 
 	expectedInputBuffer := getEmptyInitialisedBuffer()
 
@@ -107,7 +107,7 @@ func Test_transformRuneBuffers_initialRuneIncomplete(t *testing.T) {
 
 	outputBuffer := new(bytes.Buffer)
 
-	expectedErr := &ErrErroneousInitialRune{}
+	expectedErr := ErrErroneousInitialRune
 
 	expectedInputBuffer := new(bytes.Buffer)
 	expectedInputBuffer.Write(inputRuneBytesSlice)
