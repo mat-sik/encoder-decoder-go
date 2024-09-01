@@ -13,6 +13,8 @@ const WriteBufferSize = 4 * ReadBufferSize
 func filesApplyFuncAndTransfer(
 	inputFilePath string,
 	outputFilePath string,
+	inputBuffer *bytes.Buffer,
+	outputBuffer *bytes.Buffer,
 	transformFunc func(r rune) rune,
 ) error {
 	inputFile, err := os.Open(inputFilePath)
@@ -26,12 +28,6 @@ func filesApplyFuncAndTransfer(
 		return err
 	}
 	defer safeCloseFile(outputFile)
-
-	inputBuffer := new(bytes.Buffer)
-	inputBuffer.Grow(ReadBufferSize)
-
-	outputBuffer := new(bytes.Buffer)
-	outputBuffer.Grow(WriteBufferSize)
 
 	if err = applyFuncAndTransfer(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
 		return err
