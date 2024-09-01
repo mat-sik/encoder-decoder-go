@@ -90,33 +90,50 @@ func (err *ErrUnableToTransformRune) Error() string {
 // At the end, the input buffer is prepared to be written to again.
 func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
 	iterCount := 0
+	handleFunc := func(inputRune rune, inputRuneSize int, err error) error {
+		return handleInputRune(inputRune, inputRuneSize, err, inputBuffer, outputBuffer, transformFunc, &iterCount)
+	}
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
 		if err == io.EOF { // The whole input buffer has been read so end.
 			inputBuffer.Reset()
 			break
 		}
-		if err != nil {
+		if err = handleFunc(inputRune, inputRuneSize, err); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func handleInputRune(
+	inputRune rune,
+	inputRuneSize int,
+	err error,
+	inputBuffer *bytes.Buffer,
+	outputBuffer *bytes.Buffer,
+	transformFunc func(r rune) rune,
+	iterCount *int,
+) error {
+	if err != nil {
+		return err // Unexpected error has occurred.
+	}
+	// Invalid or not whole rune has been read, so leave if for next transformRuneBuffers operation and end.
+	if inputRuneSize == 1 && inputRune == '\uFFFD' {
+		if err = inputBuffer.UnreadRune(); err != nil {
 			return err // Unexpected error has occurred.
 		}
-
-		// Invalid or not whole rune has been read, so leave if for next transformRuneBuffers operation and end.
-		if inputRuneSize == 1 && inputRune == '\uFFFD' {
-			if err = inputBuffer.UnreadRune(); err != nil {
-				return err // Unexpected error has occurred.
-			}
-			compactBuffer(inputBuffer)
-			if iterCount == 0 {
-				return &ErrErroneousInitialRune{}
-			}
-			return &ErrErroneousRune{}
-		} else { // Transform rune and write it to output buffer.
-			transformedRune := transformFunc(inputRune)
-			if _, err = outputBuffer.WriteRune(transformedRune); err != nil {
-				return err
-			}
+		compactBuffer(inputBuffer)
+		if *iterCount == 0 {
+			return &ErrErroneousInitialRune{}
 		}
-		iterCount++
+		return &ErrErroneousRune{}
+	} else { // Transform rune and write it to output buffer.
+		transformedRune := transformFunc(inputRune)
+		if _, err = outputBuffer.WriteRune(transformedRune); err != nil {
+			return err
+		}
 	}
+	*iterCount++
 	return nil
 }
 
