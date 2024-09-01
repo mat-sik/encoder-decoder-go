@@ -10,7 +10,7 @@ import (
 const ReadBufferSize = 4 * 1024
 const WriteBufferSize = 4 * ReadBufferSize
 
-func transformRuneFiles(inputFilePath string, outputFilePath string, transformFunc func(r rune) rune) error {
+func transformAndTransferRuneFiles(inputFilePath string, outputFilePath string, transformFunc func(r rune) rune) error {
 	inputFile, err := os.Open(inputFilePath)
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func transformRuneFiles(inputFilePath string, outputFilePath string, transformFu
 	outputBuffer := new(bytes.Buffer)
 	outputBuffer.Grow(WriteBufferSize)
 
-	if err = handleRuneFilesTransformation(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
+	if err = transformAndTransferRunes(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
 		return err
 	}
 	return nil
@@ -41,7 +41,7 @@ func closeFile(file *os.File) {
 	}
 }
 
-func handleRuneFilesTransformation(
+func transformAndTransferRunes(
 	reader io.Reader,
 	writer io.Writer,
 	inputBuffer *bytes.Buffer,
@@ -50,7 +50,7 @@ func handleRuneFilesTransformation(
 ) error {
 	consecutiveErroneousInitialRune := false
 	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			if consecutiveErroneousInitialRune {
 				return ErrUnableToTransformRune
 			}
@@ -88,9 +88,6 @@ var ErrUnableToTransformRune = errors.New("after two consecutive reads, could no
 // At the end, the input buffer is prepared to be written to again.
 func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
 	iterCount := 0
-	transform := func(inputRune rune, inputRuneSize int) error {
-		return transformRune(inputRune, inputRuneSize, inputBuffer, outputBuffer, transformFunc)
-	}
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
 		if err == io.EOF { // The whole input buffer has been read so end.
 			inputBuffer.Reset()
@@ -99,7 +96,7 @@ func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer,
 		if err != nil {
 			return err // Unexpected error has occurred.
 		}
-		err = transform(inputRune, inputRuneSize)
+		err = transformAndWriteRuneToBuffer(inputRune, inputRuneSize, inputBuffer, outputBuffer, transformFunc)
 		if errors.Is(err, ErrErroneousRune) && iterCount == 0 {
 			return ErrErroneousInitialRune
 		}
@@ -113,7 +110,7 @@ func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer,
 
 var ErrErroneousInitialRune = errors.New("invalid initial rune has been read")
 
-func transformRune(
+func transformAndWriteRuneToBuffer(
 	inputRune rune,
 	inputRuneSize int,
 	inputBuffer *bytes.Buffer,
