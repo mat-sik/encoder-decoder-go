@@ -49,13 +49,13 @@ func handleRuneFilesTransformation(
 ) error {
 	consecutiveErroneousInitialRune := false
 	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
-		if err != nil {
-			if err == io.EOF {
-				if consecutiveErroneousInitialRune {
-					return &ErrUnableToTransformRune{}
-				}
-				break
+		if err == io.EOF {
+			if consecutiveErroneousInitialRune {
+				return &ErrUnableToTransformRune{}
 			}
+			break
+		}
+		if err != nil {
 			return err
 		}
 
@@ -91,11 +91,11 @@ func (err *ErrUnableToTransformRune) Error() string {
 func transformRuneBuffers(inputBuffer *bytes.Buffer, outputBuffer *bytes.Buffer, transformFunc func(r rune) rune) error {
 	iterCount := 0
 	for inputRune, inputRuneSize, err := inputBuffer.ReadRune(); ; inputRune, inputRuneSize, err = inputBuffer.ReadRune() {
+		if err == io.EOF { // The whole input buffer has been read so end.
+			inputBuffer.Reset()
+			break
+		}
 		if err != nil {
-			if err == io.EOF { // The whole input buffer has been read so end.
-				inputBuffer.Reset()
-				break
-			}
 			return err // Unexpected error has occurred.
 		}
 
