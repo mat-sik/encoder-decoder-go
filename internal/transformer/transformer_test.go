@@ -2,6 +2,7 @@ package transformer
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/mat-sik/encoder-decoder/internal/algorithms"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -28,13 +29,13 @@ func getInputRuneBytes() []byte {
 
 func Test_runeBuffersApplyFuncAndTransfer_allRunesCorrectlyRead(t *testing.T) {
 	// given
-	inputBuffer := new(bytes.Buffer)
+	inputBuffer := bytes.NewBuffer(make([]byte, 0, 64))
 	inputBuffer.WriteRune(inputRune)
 	inputBuffer.WriteRune(inputRune)
 
 	outputBuffer := new(bytes.Buffer)
 
-	expectedInputBuffer := getEmptyInitialisedBuffer()
+	expectedInputBuffer := bytes.NewBuffer(make([]byte, 0, 64))
 
 	expectedOutputBuffer := new(bytes.Buffer)
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
@@ -85,7 +86,7 @@ func Test_runeBuffersApplyFuncAndTransfer_partialTransformationLastRuneNotComple
 
 	expectedErr := ErrErroneousRune
 
-	expectedInputBuffer := getEmptyInitialisedBuffer()
+	expectedInputBuffer := bytes.NewBuffer(make([]byte, 0, 64))
 
 	expectedOutputBuffer := new(bytes.Buffer)
 	expectedOutputBuffer.WriteRune(expectedOutputRune)
@@ -121,8 +122,20 @@ func Test_runeBuffersApplyFuncAndTransfer_initialRuneIncomplete(t *testing.T) {
 	assert.Equal(t, expectedOutputBuffer, outputBuffer)
 }
 
-func getEmptyInitialisedBuffer() *bytes.Buffer {
-	buffer := new(bytes.Buffer)
-	buffer.Grow(64)
-	return buffer
+func Test_applyFuncAndTransfer_init(t *testing.T) {
+	// given
+	reader := new(bytes.Buffer)
+	for i := 0; i < 4; i++ {
+		reader.Write(inputRuneBytes)
+	}
+	writer := new(bytes.Buffer)
+
+	inputBuffer := bytes.NewBuffer(make([]byte, 0, 2))
+	outputBuffer := new(bytes.Buffer)
+
+	// when
+	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
+
+	// then
+	fmt.Println(err)
 }

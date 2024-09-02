@@ -7,8 +7,10 @@ import (
 	"os"
 )
 
-const ReadBufferSize = 4 * 1024
-const WriteBufferSize = 4 * ReadBufferSize
+const (
+	ReadBufferSize  = 4 * 1024
+	WriteBufferSize = 4 * ReadBufferSize
+)
 
 func filesApplyFuncAndTransfer(
 	inputFilePath string,
@@ -48,16 +50,20 @@ func applyFuncAndTransfer(
 	outputBuffer *bytes.Buffer,
 	transformFunc func(rune) rune,
 ) error {
+	inputBufferCapacity := int64(inputBuffer.Cap())
+	limitedReader := newReusableLimitedReader(reader, inputBufferCapacity)
+
 	consecutiveInvalidRune := false
-	for _, err := inputBuffer.ReadFrom(reader); ; _, err = inputBuffer.ReadFrom(reader) {
-		if errors.Is(err, io.EOF) {
+	for {
+		readSize, err := limitedReadToBuffer(&limitedReader, inputBuffer)
+		if err != nil {
+			return err
+		}
+		if readSize == 0 {
 			if consecutiveInvalidRune {
 				return ErrUnableToTransformRune
 			}
 			break
-		}
-		if err != nil {
-			return err
 		}
 
 		err = runeBuffersApplyFuncAndTransfer(inputBuffer, outputBuffer, transformFunc)
@@ -81,7 +87,26 @@ func applyFuncAndTransfer(
 	return nil
 }
 
-var ErrUnableToTransformRune = errors.New("after two consecutive reads, could not transform rune")
+func limitedReadToBuffer(reusableLimitedReader *reusableLimitedReader, buffer *bytes.Buffer) (int64, error) {
+	limitedReader := reusableLimitedReader.limitedReader
+	n, err := buffer.ReadFrom(limitedReader)
+	reusableLimitedReader.reset()
+	return n, err
+}
+
+type reusableLimitedReader struct {
+	limitedReader *io.LimitedReader
+	limit         int64
+}
+
+func (l *reusableLimitedReader) reset() {
+	l.limitedReader.N = l.limit
+}
+
+func newReusableLimitedReader(reader io.Reader, limit int64) reusableLimitedReader {
+	limitedReader := &io.LimitedReader{R: reader, N: limit}
+	return reusableLimitedReader{limitedReader, limit}
+}
 
 // The input buffer is expected to be ready to be read from.
 // The output buffer is expected to be ready to be written to.
@@ -125,12 +150,14 @@ func isInvalidRune(r rune, size int) bool {
 	return r == '\uFFFD' && size == 1
 }
 
-var ErrErroneousInitialRune = errors.New("invalid initial rune has been read")
-
 func compactBuffer(inputBuffer *bytes.Buffer) {
 	unreadChunk := inputBuffer.Bytes()
 	inputBuffer.Reset()
 	inputBuffer.Write(unreadChunk)
 }
 
-var ErrErroneousRune = errors.New("invalid rune has been read")
+var (
+	ErrUnableToTransformRune = errors.New("after two consecutive reads, could not transform rune")
+	ErrErroneousInitialRune  = errors.New("invalid initial rune has been read")
+	ErrErroneousRune         = errors.New("invalid rune has been read")
+)
