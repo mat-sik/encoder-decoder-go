@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// WriteBufferSize by making it 4 times, we guarantee that it will be able to fit 4kb of transformed runes.
 const (
 	ReadBufferSize  = 4 * 1024
 	WriteBufferSize = 4 * ReadBufferSize
@@ -31,10 +32,7 @@ func filesApplyFuncAndTransfer(
 	}
 	defer safeCloseFile(outputFile)
 
-	if err = applyFuncAndTransfer(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc); err != nil {
-		return err
-	}
-	return nil
+	return applyFuncAndTransfer(inputFile, outputFile, inputBuffer, outputBuffer, transformFunc)
 }
 
 func safeCloseFile(file *os.File) {
