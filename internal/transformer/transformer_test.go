@@ -121,20 +121,31 @@ func Test_runeBuffersApplyFuncAndTransfer_initialRuneIncomplete(t *testing.T) {
 	assert.Equal(t, expectedOutputBuffer, outputBuffer)
 }
 
-func Test_applyFuncAndTransfer_init(t *testing.T) {
+func Test_applyFuncAndTransfer_properTransfer(t *testing.T) {
 	// given
+	inputRuneAmount := 4
 	reader := new(bytes.Buffer)
-	for i := 0; i < 4; i++ {
+	expectedWriter := bytes.NewBuffer(make([]byte, 0, 64))
+	for i := 0; i < inputRuneAmount; i++ {
 		reader.Write(inputRuneBytes)
+		expectedWriter.WriteRune(expectedOutputRune)
 	}
 	writer := new(bytes.Buffer)
 
 	inputBuffer := bytes.NewBuffer(make([]byte, 0, 2))
 	outputBuffer := new(bytes.Buffer)
 
+	expectedInputBufferSize := 0
+	expectedOutputBufferSize := 0
+	expectedReaderSize := 0
+
 	// when
 	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
 
 	// then
 	assert.NoError(t, err)
+	assert.Equal(t, expectedInputBufferSize, inputBuffer.Len())
+	assert.Equal(t, expectedOutputBufferSize, outputBuffer.Len())
+	assert.Equal(t, expectedReaderSize, reader.Len())
+	assert.Equal(t, expectedWriter, writer)
 }
