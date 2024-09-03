@@ -2,7 +2,6 @@ package transformer
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/mat-sik/encoder-decoder/internal/algorithms"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -137,5 +136,5 @@ func Test_applyFuncAndTransfer_init(t *testing.T) {
 	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
 
 	// then
-	fmt.Println(err)
+	assert.NoError(t, err)
 }
