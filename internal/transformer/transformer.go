@@ -59,7 +59,7 @@ func applyFuncAndTransfer(
 			return err
 		}
 		if readSize == 0 {
-			if consecutiveInvalidRune {
+			if consecutiveInvalidRune || inputBuffer.Len() != 0 {
 				return ErrUnableToTransformRune
 			}
 			break
@@ -73,7 +73,6 @@ func applyFuncAndTransfer(
 			if _, err = outputBuffer.WriteTo(writer); err != nil {
 				return err
 			}
-			outputBuffer.Reset()
 		case errors.Is(err, ErrErroneousInitialRune):
 			if consecutiveInvalidRune {
 				return ErrUnableToTransformRune

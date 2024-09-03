@@ -149,3 +149,62 @@ func Test_applyFuncAndTransfer_properTransfer(t *testing.T) {
 	assert.Equal(t, expectedReaderSize, reader.Len())
 	assert.Equal(t, expectedWriter, writer)
 }
+
+func Test_applyFuncAndTransfer_lastRuneReadFails(t *testing.T) {
+	// given
+	reader := new(bytes.Buffer)
+	expectedWriter := bytes.NewBuffer(make([]byte, 0, 64))
+
+	reader.Write(inputRuneBytes)
+	reader.Write(inputRuneBytes[:1])
+	expectedWriter.WriteRune(expectedOutputRune)
+
+	writer := new(bytes.Buffer)
+
+	inputBuffer := bytes.NewBuffer(make([]byte, 0, 2))
+	outputBuffer := new(bytes.Buffer)
+
+	expectedInputBufferSize := 1
+	expectedOutputBufferSize := 0
+	expectedReaderSize := 1
+
+	// when
+	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
+
+	// then
+	assert.Equal(t, ErrUnableToTransformRune, err)
+	assert.Equal(t, expectedInputBufferSize, inputBuffer.Len())
+	assert.Equal(t, expectedOutputBufferSize, outputBuffer.Len())
+	assert.Equal(t, expectedReaderSize, reader.Len())
+	assert.Equal(t, expectedWriter, writer)
+}
+
+func Test_applyFuncAndTransfer_consecutiveRuneReadFails(t *testing.T) {
+	// given
+	reader := new(bytes.Buffer)
+	expectedWriter := bytes.NewBuffer(make([]byte, 0, 64))
+
+	reader.Write(inputRuneBytes)
+	reader.Write(inputRuneBytes[:1])
+	reader.Write(inputRuneBytes)
+	expectedWriter.WriteRune(expectedOutputRune)
+
+	writer := new(bytes.Buffer)
+
+	inputBuffer := bytes.NewBuffer(make([]byte, 0, 2))
+	outputBuffer := new(bytes.Buffer)
+
+	expectedInputBufferSize := 4
+	expectedOutputBufferSize := 0
+	expectedReaderSize := 0
+
+	// when
+	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
+
+	// then
+	assert.Equal(t, ErrUnableToTransformRune, err)
+	assert.Equal(t, expectedInputBufferSize, inputBuffer.Len())
+	assert.Equal(t, expectedOutputBufferSize, outputBuffer.Len())
+	assert.Equal(t, expectedReaderSize, reader.Len())
+	assert.Equal(t, expectedWriter, writer)
+}
