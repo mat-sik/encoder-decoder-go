@@ -49,11 +49,12 @@ func applyFuncAndTransfer(
 	transformFunc func(rune) rune,
 ) error {
 	inputBufferCapacity := int64(inputBuffer.Cap())
-	limitedReader := newReusableLimitedReader(reader, inputBufferCapacity)
+	limitedReader := io.LimitedReader{R: reader, N: inputBufferCapacity}
 
 	consecutiveInvalidRune := false
 	for {
-		readSize, err := limitedReadToBuffer(&limitedReader, inputBuffer)
+		copiedLimitedReader := limitedReader
+		readSize, err := inputBuffer.ReadFrom(&copiedLimitedReader)
 		if err != nil {
 			return err
 		}
@@ -83,27 +84,6 @@ func applyFuncAndTransfer(
 		}
 	}
 	return nil
-}
-
-func limitedReadToBuffer(reusableLimitedReader *reusableLimitedReader, buffer *bytes.Buffer) (int64, error) {
-	limitedReader := reusableLimitedReader.limitedReader
-	n, err := buffer.ReadFrom(limitedReader)
-	reusableLimitedReader.reset()
-	return n, err
-}
-
-type reusableLimitedReader struct {
-	limitedReader *io.LimitedReader
-	limit         int64
-}
-
-func (l *reusableLimitedReader) reset() {
-	l.limitedReader.N = l.limit
-}
-
-func newReusableLimitedReader(reader io.Reader, limit int64) reusableLimitedReader {
-	limitedReader := &io.LimitedReader{R: reader, N: limit}
-	return reusableLimitedReader{limitedReader, limit}
 }
 
 // The input buffer is expected to be ready to be read from.
