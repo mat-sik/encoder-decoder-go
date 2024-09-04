@@ -168,7 +168,7 @@ func Test_applyFuncAndTransfer_lastRuneReadFails(t *testing.T) {
 
 	expectedInputBufferSize := 1
 	expectedOutputBufferSize := 0
-	expectedReaderSize := 1
+	expectedReaderSize := 0
 
 	// when
 	err := applyFuncAndTransfer(reader, writer, inputBuffer, outputBuffer, transformFunc)
