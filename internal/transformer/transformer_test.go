@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"github.com/mat-sik/encoder-decoder/internal/algorithms"
 	"github.com/stretchr/testify/assert"
+	"io"
+	"os"
 	"testing"
 	"unicode/utf8"
 )
@@ -207,4 +209,55 @@ func Test_applyFuncAndTransfer_consecutiveRuneReadFails(t *testing.T) {
 	assert.Equal(t, expectedOutputBufferSize, outputBuffer.Len())
 	assert.Equal(t, expectedReaderSize, reader.Len())
 	assert.Equal(t, expectedWriter, writer)
+}
+
+func Test_filesApplyFuncAndTransfer_properTransfer(t *testing.T) {
+	// given
+	inputFileName := "test_input_file.txt"
+	outputFileName := "test_output_file.txt"
+
+	inputFile, err := os.OpenFile(inputFileName, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer closeAndDeleteFile(inputFile)
+	runeAmount := 32 * 1024
+	initReader(inputFile, runeAmount)
+
+	outputFile, err := os.OpenFile(outputFileName, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer closeAndDeleteFile(outputFile)
+
+	inputBuffer := bytes.NewBuffer(make([]byte, 0, ReadBufferSize))
+	outputBuffer := bytes.NewBuffer(make([]byte, 0, WriteBufferSize))
+
+	// when
+	err = filesApplyFuncAndTransfer(inputFileName, outputFileName, inputBuffer, outputBuffer, transformFunc)
+	// then
+	assert.NoError(t, err)
+}
+
+func initReader(writer io.Writer, runeAmount int) {
+	runesInBufferAmount := 4 * 1024
+	bufferSize := runesInBufferAmount * 4
+	buffer := make([]byte, 0, bufferSize)
+	for i := 0; i < runesInBufferAmount; i++ {
+		buffer = utf8.AppendRune(buffer, inputRune)
+	}
+	for i := 0; i < max(1, runeAmount/runesInBufferAmount); i++ {
+		if _, err := writer.Write(buffer); err != nil && err != io.EOF {
+			panic(err)
+		}
+	}
+}
+
+func closeAndDeleteFile(file *os.File) {
+	if err := file.Close(); err != nil {
+		panic(err)
+	}
+	if err := os.Remove(file.Name()); err != nil {
+		panic(err)
+	}
 }
