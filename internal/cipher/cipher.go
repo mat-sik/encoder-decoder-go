@@ -26,17 +26,12 @@ func newCipher(argMap map[string]string) (Cipher, error) {
 
 type CipherInput struct {
 	Mode    parser.Mode
-	Alg     parser.Alg
 	InPath  string
 	OutPath string
 }
 
 func newCipherInput(argMap map[string]string) (*CipherInput, error) {
 	mode, err := parser.GetModeValue(argMap)
-	if err != nil {
-		return nil, err
-	}
-	alg, err := parser.GetAlgValue(argMap)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +43,7 @@ func newCipherInput(argMap map[string]string) (*CipherInput, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CipherInput{mode, alg, in, out}, nil
+	return &CipherInput{mode, in, out}, nil
 }
 
 type CaesarCipherInput struct {
