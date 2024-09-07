@@ -13,9 +13,9 @@ func Test_caesarSlice(t *testing.T) {
 	expected := []rune("aaaaa")
 	var offset int32 = 1
 	// when
-	caesarSlice(input, offset, OffsetRuneForward)
+	caesarSlice(input, NewOffsetRuneFunc(offset))
 	fmt.Println(string(input))
-	caesarSlice(input, offset, OffsetRuneBackward)
+	caesarSlice(input, NewOffsetRuneFunc(-offset))
 	fmt.Println(string(input))
 	// then
 	assert.Equal(t, expected, input)
@@ -27,7 +27,7 @@ func Test_offsetRuneForward(t *testing.T) {
 	fmt.Println(input)
 	fmt.Println(unicode.MaxRune)
 	// when
-	var output rune = OffsetRuneForward(input, 1)
+	var output rune = offsetRuneForward(input, 1)
 	fmt.Println(output)
 	fmt.Println(string(output))
 	// then
@@ -39,7 +39,7 @@ func Test_offsetRuneBackward(t *testing.T) {
 	fmt.Println(input)
 	fmt.Println(unicode.MaxRune)
 	// when
-	var output rune = OffsetRuneBackward(input, 4)
+	var output rune = offsetRuneBackward(input, 4)
 	fmt.Println(output)
 	fmt.Println(string(output))
 	// then

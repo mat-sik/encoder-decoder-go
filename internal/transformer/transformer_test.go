@@ -18,9 +18,7 @@ const (
 var expectedOutputRune = transformFunc(inputRune)
 var inputRuneBytes = getInputRuneBytes()
 
-var transformFunc = func(r rune) rune {
-	return algorithms.OffsetRuneForward(r, offset)
-}
+var transformFunc = algorithms.NewOffsetRuneFunc(offset)
 
 func getInputRuneBytes() []byte {
 	inputRuneBytes := make([]byte, utf8.RuneLen(inputRune))
