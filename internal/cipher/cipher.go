@@ -1,7 +1,11 @@
 package cipher
 
 import (
+	"bytes"
+
+	"github.com/mat-sik/encoder-decoder/internal/algorithms"
 	"github.com/mat-sik/encoder-decoder/internal/parser"
+	"github.com/mat-sik/encoder-decoder/internal/transformer"
 )
 
 type Cipher interface {
@@ -63,8 +67,16 @@ func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) 
 	return &CaesarCipherInput{cipherInput, key}, nil
 }
 
-func (input *CaesarCipherInput) encode() {}
-func (input *CaesarCipherInput) decode() {}
+func (input *CaesarCipherInput) encode() {
+    var key int32 = int32(input.CaesarCipherKey)
+    encodeFunc := algorithms.NewOffsetRuneFunc(key)
+    input.CipherInput.transform(encodeFunc)
+}
+
+func (input *CaesarCipherInput) decode() {
+    decodeFunc := algorithms.NewOffsetRuneFunc(int32(input.CaesarCipherKey))
+    input.CipherInput.transform(decodeFunc)
+}
 
 type MirrorCipherInput struct {
 	CipherInput *CipherInput
@@ -78,5 +90,22 @@ func newMirrorCipherInput(argMap map[string]string) (*MirrorCipherInput, error) 
 	return &MirrorCipherInput{cipherInput}, nil
 }
 
-func (input *MirrorCipherInput) encode() {}
-func (input *MirrorCipherInput) decode() {}
+func (input *MirrorCipherInput) encode() {
+    encodeFunc := algorithms.GetMirrorRuneLatin1
+    input.CipherInput.transform(encodeFunc)
+}
+
+func (input *MirrorCipherInput) decode() {
+    decodeFunc := algorithms.GetMirrorRuneLatin1
+    input.CipherInput.transform(decodeFunc)
+}
+
+func (input *CipherInput) transform(transformFunc func(rune) rune) {
+    inPath := input.InPath
+    outPath := input.OutPath
+
+    inBuffer := bytes.NewBuffer(make([]byte, 0, transformer.ReadBufferSize))
+    outBuffer := bytes.NewBuffer(make([]byte, 0, transformer.WriteBufferSize))
+
+    transformer.FilesApplyFuncAndTransfer(inPath, outPath, inBuffer, outBuffer, transformFunc)
+}
