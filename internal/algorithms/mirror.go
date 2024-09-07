@@ -11,7 +11,7 @@ func mirrorSlice[T comparable](input []T, mirrorFunc func(T) T) {
 	}
 }
 
-func getMirrorRuneLatin1(r rune) rune {
+func GetMirrorRuneLatin1(r rune) rune {
 	if r > unicode.MaxLatin1 {
 		panic("incorrect rune provided, at most can be 255")
 	}

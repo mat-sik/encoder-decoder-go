@@ -10,8 +10,8 @@ func Test_mirrorRuneSlice(t *testing.T) {
 	input := []rune("Hello")
 	expected := []rune("Hello")
 	// when
-	mirrorSlice(input, getMirrorRuneLatin1)
-	mirrorSlice(input, getMirrorRuneLatin1)
+	mirrorSlice(input, GetMirrorRuneLatin1)
+	mirrorSlice(input, GetMirrorRuneLatin1)
 	// then
 	assert.Equal(t, expected, input)
 }
