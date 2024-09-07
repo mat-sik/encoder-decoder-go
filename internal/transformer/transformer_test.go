@@ -232,7 +232,7 @@ func Test_filesApplyFuncAndTransfer_properTransfer(t *testing.T) {
 	outputBuffer := bytes.NewBuffer(make([]byte, 0, WriteBufferSize))
 
 	// when
-	err = filesApplyFuncAndTransfer(inputFileName, outputFileName, inputBuffer, outputBuffer, transformFunc)
+	err = FilesApplyFuncAndTransfer(inputFileName, outputFileName, inputBuffer, outputBuffer, transformFunc)
 	// then
 	assert.NoError(t, err)
 }

@@ -13,7 +13,7 @@ const (
 	WriteBufferSize = 4 * ReadBufferSize
 )
 
-func filesApplyFuncAndTransfer(
+func FilesApplyFuncAndTransfer(
 	inputFilePath string,
 	outputFilePath string,
 	inputBuffer *bytes.Buffer,
