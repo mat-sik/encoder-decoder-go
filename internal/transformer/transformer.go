@@ -26,7 +26,7 @@ func FilesApplyFuncAndTransfer(
 	}
 	defer safeCloseFile(inputFile)
 
-	outputFile, err := os.OpenFile(outputFilePath, os.O_WRONLY, 0644)
+	outputFile, err := os.OpenFile(outputFilePath, os.O_CREATE | os.O_TRUNC | os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
