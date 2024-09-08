@@ -18,5 +18,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	ciphers.Run(cipher)
+	if err = ciphers.Run(cipher); err != nil {
+		panic(err)
+	}
 }

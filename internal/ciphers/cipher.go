@@ -8,20 +8,20 @@ import (
 	"github.com/mat-sik/encoder-decoder/internal/transformer"
 )
 
-func Run(cipher Cipher) {
+func Run(cipher Cipher) error {
 	switch cipher.getMode() {
 	case parser.Encode:
-		cipher.encode()
+		return cipher.encode()
 	case parser.Decode:
-		cipher.decode()
+		return cipher.decode()
 	default:
 		panic("technically this is not possible")
 	}
 }
 
 type Cipher interface {
-	encode()
-	decode()
+	encode() error
+	decode() error
 	getMode() parser.Mode
 }
 
@@ -79,16 +79,16 @@ func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) 
 	return &CaesarCipherInput{cipherInput, key}, nil
 }
 
-func (input *CaesarCipherInput) encode() {
+func (input *CaesarCipherInput) encode() error {
 	var key = int32(input.CaesarCipherKey)
 	encodeFunc := algorithms.NewOffsetRuneFunc(key)
-	input.CipherInput.transform(encodeFunc)
+	return input.CipherInput.transform(encodeFunc)
 }
 
-func (input *CaesarCipherInput) decode() {
+func (input *CaesarCipherInput) decode() error {
 	var key = -int32(input.CaesarCipherKey)
 	decodeFunc := algorithms.NewOffsetRuneFunc(key)
-	input.CipherInput.transform(decodeFunc)
+	return input.CipherInput.transform(decodeFunc)
 }
 
 func (input *CaesarCipherInput) getMode() parser.Mode {
@@ -107,26 +107,26 @@ func newMirrorCipherInput(argMap map[string]string) (*MirrorCipherInput, error) 
 	return &MirrorCipherInput{cipherInput}, nil
 }
 
-func (input *MirrorCipherInput) encode() {
+func (input *MirrorCipherInput) encode() error {
 	encodeFunc := algorithms.GetMirrorRuneLatin1
-	input.CipherInput.transform(encodeFunc)
+	return input.CipherInput.transform(encodeFunc)
 }
 
-func (input *MirrorCipherInput) decode() {
+func (input *MirrorCipherInput) decode() error {
 	decodeFunc := algorithms.GetMirrorRuneLatin1
-	input.CipherInput.transform(decodeFunc)
+	return input.CipherInput.transform(decodeFunc)
 }
 
 func (input *MirrorCipherInput) getMode() parser.Mode {
 	return input.CipherInput.Mode
 }
 
-func (input *CipherInput) transform(transformFunc func(rune) rune) {
+func (input *CipherInput) transform(transformFunc func(rune) rune) error {
 	inPath := input.InPath
 	outPath := input.OutPath
 
 	inBuffer := bytes.NewBuffer(make([]byte, 0, transformer.ReadBufferSize))
 	outBuffer := bytes.NewBuffer(make([]byte, 0, transformer.WriteBufferSize))
 
-	transformer.FilesApplyFuncAndTransfer(inPath, outPath, inBuffer, outBuffer, transformFunc)
+	return transformer.FilesApplyFuncAndTransfer(inPath, outPath, inBuffer, outBuffer, transformFunc)
 }
