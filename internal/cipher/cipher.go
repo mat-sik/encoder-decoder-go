@@ -86,7 +86,7 @@ func (input *CaesarCipherInput) encode() {
 }
 
 func (input *CaesarCipherInput) decode() {
-	var key = int32(input.CaesarCipherKey)
+	var key = -int32(input.CaesarCipherKey)
 	decodeFunc := algorithms.NewOffsetRuneFunc(key)
 	input.CipherInput.transform(decodeFunc)
 }
