@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	args := os.Args
+	args := os.Args[1:]
 
 	argMap, err := parser.Parse(args)
 	if err != nil {
