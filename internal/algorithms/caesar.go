@@ -9,16 +9,16 @@ func caesarSlice(input []rune, caesarFunc func(rune) rune) {
 }
 
 func NewOffsetRuneFunc(offset int32) func(rune) rune {
-    if offset > 0 {
-        return func(r rune) rune {
-            return offsetRuneForward(r, offset)
-        }
-    } else if offset < 0 {
-        return func(r rune) rune {
-            return offsetRuneBackward(r, -offset)
-        }
-    }
-    panic("zero offset does not do anything")
+	if offset > 0 {
+		return func(r rune) rune {
+			return offsetRuneForward(r, offset)
+		}
+	} else if offset < 0 {
+		return func(r rune) rune {
+			return offsetRuneBackward(r, -offset)
+		}
+	}
+	panic("zero offset does not do anything")
 }
 
 func offsetRuneForward(r rune, offset int32) rune {

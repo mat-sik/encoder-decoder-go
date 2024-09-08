@@ -27,7 +27,7 @@ func Test_offsetRuneForward(t *testing.T) {
 	fmt.Println(input)
 	fmt.Println(unicode.MaxRune)
 	// when
-	var output rune = offsetRuneForward(input, 1)
+	var output = offsetRuneForward(input, 1)
 	fmt.Println(output)
 	fmt.Println(string(output))
 	// then
@@ -39,7 +39,7 @@ func Test_offsetRuneBackward(t *testing.T) {
 	fmt.Println(input)
 	fmt.Println(unicode.MaxRune)
 	// when
-	var output rune = offsetRuneBackward(input, 4)
+	var output = offsetRuneBackward(input, 4)
 	fmt.Println(output)
 	fmt.Println(string(output))
 	// then
