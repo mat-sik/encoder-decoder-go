@@ -8,8 +8,18 @@ import (
 	"github.com/mat-sik/encoder-decoder/internal/transformer"
 )
 
-func Run(cipher Cipher) error {
-	switch cipher.getMode() {
+type CipherRunner interface {
+	Run() error
+}
+
+type BasicCipherRunner struct {
+	cipher Cipher
+	mode   parser.Mode
+}
+
+func (cipherRunner *BasicCipherRunner) Run() error {
+	cipher := cipherRunner.cipher
+	switch cipherRunner.mode {
 	case parser.Encode:
 		return cipher.encode()
 	case parser.Decode:
@@ -22,35 +32,35 @@ func Run(cipher Cipher) error {
 type Cipher interface {
 	encode() error
 	decode() error
-	getMode() parser.Mode
 }
 
-func NewCipher(argMap map[string]string) (Cipher, error) {
+func NewCipherRunner(argMap map[string]string) (CipherRunner, error) {
 	alg, err := parser.GetAlgValue(argMap)
 	if err != nil {
 		return nil, err
 	}
+	mode, err := parser.GetModeValue(argMap)
+	if err != nil {
+		return nil, err
+	}
+	var cipher Cipher
 	switch alg {
 	case parser.Caesar:
-		return newCaesarCipherInput(argMap)
+		cipher, err = newCaesarCipherInput(argMap)
 	case parser.Mirror:
-		return newMirrorCipherInput(argMap)
+		cipher, err = newMirrorCipherInput(argMap)
 	default:
 		panic("technically this is not possible")
 	}
+	return &BasicCipherRunner{cipher, mode}, err
 }
 
 type CipherInput struct {
-	Mode    parser.Mode
 	InPath  string
 	OutPath string
 }
 
 func newCipherInput(argMap map[string]string) (*CipherInput, error) {
-	mode, err := parser.GetModeValue(argMap)
-	if err != nil {
-		return nil, err
-	}
 	in, err := parser.GetInValue(argMap)
 	if err != nil {
 		return nil, err
@@ -59,7 +69,7 @@ func newCipherInput(argMap map[string]string) (*CipherInput, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CipherInput{mode, in, out}, nil
+	return &CipherInput{in, out}, nil
 }
 
 type CaesarCipherInput struct {
@@ -91,10 +101,6 @@ func (input *CaesarCipherInput) decode() error {
 	return input.CipherInput.transform(decodeFunc)
 }
 
-func (input *CaesarCipherInput) getMode() parser.Mode {
-	return input.CipherInput.Mode
-}
-
 type MirrorCipherInput struct {
 	CipherInput *CipherInput
 }
@@ -115,10 +121,6 @@ func (input *MirrorCipherInput) encode() error {
 func (input *MirrorCipherInput) decode() error {
 	decodeFunc := algorithms.GetMirrorRuneLatin1
 	return input.CipherInput.transform(decodeFunc)
-}
-
-func (input *MirrorCipherInput) getMode() parser.Mode {
-	return input.CipherInput.Mode
 }
 
 func (input *CipherInput) transform(transformFunc func(rune) rune) error {

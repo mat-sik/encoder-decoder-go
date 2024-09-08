@@ -15,16 +15,18 @@ func Test_newCipher(t *testing.T) {
 		"-a": "mirror",
 		"-k": "123",
 	}
-	expectedInput := &MirrorCipherInput{
-		CipherInput: &CipherInput{
-			Mode:    parser.Encode,
-			InPath:  "foo.txt",
-			OutPath: "bar.txt",
+	expectedInput := &BasicCipherRunner{
+		cipher: &MirrorCipherInput{
+			CipherInput: &CipherInput{
+				InPath:  "foo.txt",
+				OutPath: "bar.txt",
+			},
 		},
+		mode: parser.Encode,
 	}
 	var expectedErr error = nil
 	// when
-	resultCipher, resultErr := NewCipher(argMap)
+	resultCipher, resultErr := NewCipherRunner(argMap)
 	// then
 	assert.Equal(t, expectedErr, resultErr)
 	assert.IsType(t, expectedInput, resultCipher)

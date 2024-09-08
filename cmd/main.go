@@ -14,11 +14,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	cipher, err := ciphers.NewCipher(argMap)
+	cipherRunner, err := ciphers.NewCipherRunner(argMap)
 	if err != nil {
 		panic(err)
 	}
-	if err = ciphers.Run(cipher); err != nil {
+	if err = cipherRunner.Run(); err != nil {
 		panic(err)
 	}
 }
