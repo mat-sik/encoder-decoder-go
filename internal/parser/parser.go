@@ -8,14 +8,14 @@ import (
 func Parse(args []string) (map[string]string, error) {
 	argMap := make(map[string]string)
 	for position, arg := range args {
-		if err := parseArg(&argMap, position, arg); err != nil {
+		if err := parseArg(argMap, position, arg); err != nil {
 			return nil, err
 		}
 	}
 	return argMap, nil
 }
 
-func parseArg(argMap *map[string]string, position int, arg string) error {
+func parseArg(argMap map[string]string, position int, arg string) error {
 	if !isValidArg(arg) {
 		return &ErrInvalidArg{arg, position}
 	}
@@ -23,7 +23,7 @@ func parseArg(argMap *map[string]string, position int, arg string) error {
 	if !isPairArg {
 		flag = arg
 	}
-	(*argMap)[flag] = value
+	argMap[flag] = value
 	return nil
 }
 
