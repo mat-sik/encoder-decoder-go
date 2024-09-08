@@ -21,7 +21,7 @@ func Test_parse(t *testing.T) {
 		"--five":  "",
 	}
 	// when
-	resultMap, resultErr := parse(input)
+	resultMap, resultErr := Parse(input)
 	// then
 	assert.Equal(t, expectedErr, resultErr)
 	assert.Equal(t, expectedMap, resultMap)
@@ -33,7 +33,7 @@ func Test_parse_NoArgs(t *testing.T) {
 	var expectedErr error = nil
 	expectedMap := make(map[string]string)
 	// when
-	resultMap, resultErr := parse(input)
+	resultMap, resultErr := Parse(input)
 	// then
 	assert.Equal(t, expectedErr, resultErr)
 	assert.Equal(t, expectedMap, resultMap)
@@ -50,7 +50,7 @@ func Test_parse_IncorrectArg(t *testing.T) {
 	var expectedErr error = &ErrInvalidArg{"wrong", 2}
 	var expectedMap map[string]string = nil
 	// when
-	resultMap, resultErr := parse(input)
+	resultMap, resultErr := Parse(input)
 	// then
 	assert.Equal(t, expectedErr, resultErr)
 	assert.Equal(t, expectedMap, resultMap)

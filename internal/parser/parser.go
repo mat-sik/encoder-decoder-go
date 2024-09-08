@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func parse(args []string) (map[string]string, error) {
+func Parse(args []string) (map[string]string, error) {
 	argMap := make(map[string]string)
 	for position, arg := range args {
 		if err := parseArg(&argMap, position, arg); err != nil {
