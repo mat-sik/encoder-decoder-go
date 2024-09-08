@@ -9,20 +9,20 @@ import (
 )
 
 func Run(cipher Cipher) {
-    switch cipher.getMode() {
-    case parser.Encode:
-        cipher.encode()
-    case parser.Decode:
-        cipher.decode()
-    default:
-        panic("technically this is not possible")
-    }
+	switch cipher.getMode() {
+	case parser.Encode:
+		cipher.encode()
+	case parser.Decode:
+		cipher.decode()
+	default:
+		panic("technically this is not possible")
+	}
 }
 
 type Cipher interface {
 	encode()
 	decode()
-    getMode() parser.Mode
+	getMode() parser.Mode
 }
 
 func NewCipher(argMap map[string]string) (Cipher, error) {
@@ -80,18 +80,19 @@ func newCaesarCipherInput(argMap map[string]string) (*CaesarCipherInput, error) 
 }
 
 func (input *CaesarCipherInput) encode() {
-    var key int32 = int32(input.CaesarCipherKey)
-    encodeFunc := algorithms.NewOffsetRuneFunc(key)
-    input.CipherInput.transform(encodeFunc)
+	var key = int32(input.CaesarCipherKey)
+	encodeFunc := algorithms.NewOffsetRuneFunc(key)
+	input.CipherInput.transform(encodeFunc)
 }
 
 func (input *CaesarCipherInput) decode() {
-    decodeFunc := algorithms.NewOffsetRuneFunc(int32(input.CaesarCipherKey))
-    input.CipherInput.transform(decodeFunc)
+	var key = int32(input.CaesarCipherKey)
+	decodeFunc := algorithms.NewOffsetRuneFunc(key)
+	input.CipherInput.transform(decodeFunc)
 }
 
 func (input *CaesarCipherInput) getMode() parser.Mode {
-    return input.CipherInput.Mode
+	return input.CipherInput.Mode
 }
 
 type MirrorCipherInput struct {
@@ -107,25 +108,25 @@ func newMirrorCipherInput(argMap map[string]string) (*MirrorCipherInput, error) 
 }
 
 func (input *MirrorCipherInput) encode() {
-    encodeFunc := algorithms.GetMirrorRuneLatin1
-    input.CipherInput.transform(encodeFunc)
+	encodeFunc := algorithms.GetMirrorRuneLatin1
+	input.CipherInput.transform(encodeFunc)
 }
 
 func (input *MirrorCipherInput) decode() {
-    decodeFunc := algorithms.GetMirrorRuneLatin1
-    input.CipherInput.transform(decodeFunc)
+	decodeFunc := algorithms.GetMirrorRuneLatin1
+	input.CipherInput.transform(decodeFunc)
 }
 
 func (input *MirrorCipherInput) getMode() parser.Mode {
-    return input.CipherInput.Mode
+	return input.CipherInput.Mode
 }
 
 func (input *CipherInput) transform(transformFunc func(rune) rune) {
-    inPath := input.InPath
-    outPath := input.OutPath
+	inPath := input.InPath
+	outPath := input.OutPath
 
-    inBuffer := bytes.NewBuffer(make([]byte, 0, transformer.ReadBufferSize))
-    outBuffer := bytes.NewBuffer(make([]byte, 0, transformer.WriteBufferSize))
+	inBuffer := bytes.NewBuffer(make([]byte, 0, transformer.ReadBufferSize))
+	outBuffer := bytes.NewBuffer(make([]byte, 0, transformer.WriteBufferSize))
 
-    transformer.FilesApplyFuncAndTransfer(inPath, outPath, inBuffer, outBuffer, transformFunc)
+	transformer.FilesApplyFuncAndTransfer(inPath, outPath, inBuffer, outBuffer, transformFunc)
 }

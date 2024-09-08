@@ -7,7 +7,7 @@ import (
 
 func Parse(args []string) (map[string]string, error) {
 	argMap := make(map[string]string)
-	for position, arg := range args {
+	for position, arg := range args[1:] {
 		if err := parseArg(&argMap, position, arg); err != nil {
 			return nil, err
 		}
