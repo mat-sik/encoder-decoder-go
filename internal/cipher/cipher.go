@@ -8,12 +8,24 @@ import (
 	"github.com/mat-sik/encoder-decoder/internal/transformer"
 )
 
+func Run(cipher Cipher) {
+    switch cipher.getMode() {
+    case parser.Encode:
+        cipher.encode()
+    case parser.Decode:
+        cipher.decode()
+    default:
+        panic("technically this is not possible")
+    }
+}
+
 type Cipher interface {
 	encode()
 	decode()
+    getMode() parser.Mode
 }
 
-func newCipher(argMap map[string]string) (Cipher, error) {
+func NewCipher(argMap map[string]string) (Cipher, error) {
 	alg, err := parser.GetAlgValue(argMap)
 	if err != nil {
 		return nil, err
@@ -78,6 +90,10 @@ func (input *CaesarCipherInput) decode() {
     input.CipherInput.transform(decodeFunc)
 }
 
+func (input *CaesarCipherInput) getMode() parser.Mode {
+    return input.CipherInput.Mode
+}
+
 type MirrorCipherInput struct {
 	CipherInput *CipherInput
 }
@@ -98,6 +114,10 @@ func (input *MirrorCipherInput) encode() {
 func (input *MirrorCipherInput) decode() {
     decodeFunc := algorithms.GetMirrorRuneLatin1
     input.CipherInput.transform(decodeFunc)
+}
+
+func (input *MirrorCipherInput) getMode() parser.Mode {
+    return input.CipherInput.Mode
 }
 
 func (input *CipherInput) transform(transformFunc func(rune) rune) {

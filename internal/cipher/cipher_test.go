@@ -18,14 +18,13 @@ func Test_newCipher(t *testing.T) {
 	expectedInput := &MirrorCipherInput{
 		CipherInput: &CipherInput{
 			Mode:    parser.Encode,
-			Alg:     parser.Mirror,
 			InPath:  "foo.txt",
 			OutPath: "bar.txt",
 		},
 	}
 	var expectedErr error = nil
 	// when
-	resultCipher, resultErr := newCipher(argMap)
+	resultCipher, resultErr := NewCipher(argMap)
 	// then
 	assert.Equal(t, expectedErr, resultErr)
 	assert.IsType(t, expectedInput, resultCipher)
