@@ -1,4 +1,4 @@
-package cipher
+package ciphers
 
 import (
 	"github.com/mat-sik/encoder-decoder/internal/parser"

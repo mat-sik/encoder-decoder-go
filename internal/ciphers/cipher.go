@@ -1,4 +1,4 @@
-package cipher
+package ciphers
 
 import (
 	"bytes"
